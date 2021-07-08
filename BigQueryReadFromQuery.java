@@ -17,7 +17,7 @@ import org.apache.beam.sdk.options.ValueProvider;
 import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.UnknownKeyFor;
-
+import java.util.*;
 
 
 public class BigQueryReadFromQuery {
@@ -49,13 +49,20 @@ public class BigQueryReadFromQuery {
                                 .usingStandardSql()
                 );
 
-
         rows.apply(ParDo.of(new DoFn<TableRow, Void>() {
             @ProcessElement
             public void ProcessElement(ProcessContext c)
             {
-                System.out.println("Trying to print the data");
-                System.out.println(c.element() + "--->" + c.element().getClass().getName());
+		    TableRow row = c.element();
+		    System.out.println(row.get());
+                    String[] words = row.get("Name").toString().split("[^a-zA-Z']+");
+                    for (String word : words)
+		    {	
+			    System.out.println(word);
+		    }
+	     
+                //System.out.println("Trying to print the data");
+                //System.out.println(c.element() + "--->" + c.element().getClass().getName());
             }
         }));
         System.out.println(rows.getName());
