@@ -1,20 +1,18 @@
 
 
-import com.google.api.services.bigquery.model.TableReference;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.ValueProvider;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import com.google.api.services.bigquery.model.TableRow;
 import org.apache.beam.sdk.extensions.jackson.AsJsons;
-import java.util.logging.*;
+import java.util.logging.Logger;
+
 
 
 /*
@@ -31,7 +29,7 @@ This script will load data from bigquery table
 
  */
 
-public class BigQueryToGcs {
+public class test {
     // Setting up logger for printing console message or to debug
 
     private final static Logger LOGGER =
@@ -69,28 +67,6 @@ public class BigQueryToGcs {
         //    reading from BigQueryIO
 
         options.setTempLocation("gs://dev-v2/temp");
-
-        TableReference tableSpec =
-                new TableReference()
-                        .setProjectId("gcp-training-poc")
-                        .setDatasetId("test")
-                        .setTableId("user");
-
-        System.out.println("Table Reference" + tableSpec);
-
-        PCollection<TableRow> tbl = pipeline.apply(
-                "reading from Bq",
-                BigQueryIO.readTableRows().from(tableSpec)
-        );
-
-        PCollection<TableRow> spec = tbl.apply(ParDo.of(new DoFn<TableRow, TableRow>() {
-            @ProcessElement
-            public void ProcessElement(ProcessContext c)
-            {
-                System.out.println("elements" + c.element());
-            }
-        }));
-
         PCollection<TableRow> rows = pipeline
                 .apply(
                         "Read from BigQuery query",
@@ -99,31 +75,15 @@ public class BigQueryToGcs {
 
                 );
 
- /*
-      PCollection<TableRow> record = rows.apply(ParDo.of(new DoFn<TableRow, TableRow>() {
-            @ProcessElement
-            public void ProcessElement(ProcessContext c)
-            {
-                c.output(c.element());
-            }
-        }));
 
-  */
 
 
         /* Converting PCollection<TableRow> into json format */
         PCollection<String> jsonForm = rows.apply("JsonTransform", AsJsons.of(TableRow.class));
 
 
-        jsonForm.apply(ParDo.of(new DoFn<String, Void>() {
-            @ProcessElement
-            public void ProcessElement(ProcessContext c) {
-                LOGGER.log(Level.INFO, (c.element()));
 
-            }
-        }));
-
-      //  jsonForm.apply(TextIO.write().to(options.getStorageLocation()));
+        jsonForm.apply(TextIO.write().to(options.getStorageLocation()));
         PipelineResult result = pipeline.run();
 
     }
