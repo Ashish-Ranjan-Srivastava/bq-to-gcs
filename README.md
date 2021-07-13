@@ -22,5 +22,6 @@ Note - we need to assign tempgcs Location for the temporaray Location used by be
 
 
 **DAG formed on DataFlow console** 
-![image](https://user-images.githubusercontent.com/47782446/125329454-22cc1680-e363-11eb-930c-a4fea7a5e602.png)
+![image](https://user-images.githubusercontent.com/47782446/125466708-21a27476-32f3-4d49-b1d9-dd913f7944e3.png)
+
 
